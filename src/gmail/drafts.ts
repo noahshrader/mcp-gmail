@@ -1,4 +1,4 @@
-import { getGmailClient, type GmailClientFactory } from './client.js';
+import { callGmailApi, getGmailClient, type GmailClientFactory } from './client.js';
 import { GmailNotFoundError } from './errors.js';
 import { COMPOSE_SCOPES, SEND_SCOPES } from './scopes.js';
 import {
@@ -25,14 +25,14 @@ export class DraftService {
     }
 
     const gmail = await this.composeClientFactory();
-    const response = await gmail.users.drafts.create({
+    const response = await callGmailApi(() => gmail.users.drafts.create({
       userId: 'me',
       requestBody: {
         message: {
           raw: buildRawMimeMessage(preview)
         }
       }
-    });
+    }));
 
     return {
       draftId: response.data.id ?? undefined,
@@ -44,7 +44,7 @@ export class DraftService {
 
   async updateDraft(id: string, payload: DraftPayload, dryRun = true): Promise<DraftResult> {
     const gmail = await this.composeClientFactory();
-    const currentDraft = await gmail.users.drafts.get({ userId: 'me', id, format: 'full' });
+    const currentDraft = await callGmailApi(() => gmail.users.drafts.get({ userId: 'me', id, format: 'full' }));
     const currentMessage = toMessageDetail(currentDraft.data.message ?? {});
     const mergedPreview: DraftPreview = {
       to: payload.to ?? currentMessage.to,
@@ -59,7 +59,7 @@ export class DraftService {
       return { draftId: id, dryRun: true, preview: mergedPreview, threadId: mergedPreview.threadId };
     }
 
-    const response = await gmail.users.drafts.update({
+    const response = await callGmailApi(() => gmail.users.drafts.update({
       userId: 'me',
       id,
       requestBody: {
@@ -69,7 +69,7 @@ export class DraftService {
           raw: buildRawMimeMessage(mergedPreview)
         }
       }
-    });
+    }));
 
     return {
       draftId: response.data.id ?? id,
@@ -87,10 +87,10 @@ export class DraftService {
     }
 
     const gmail = await this.sendClientFactory();
-    const response = await gmail.users.drafts.send({
+    const response = await callGmailApi(() => gmail.users.drafts.send({
       userId: 'me',
       requestBody: { id }
-    });
+    }));
 
     return {
       draftId: id,
@@ -102,7 +102,7 @@ export class DraftService {
 
   private async fetchSendPreview(id: string): Promise<SendPreview> {
     const gmail = await this.composeClientFactory();
-    const draft = await gmail.users.drafts.get({ userId: 'me', id, format: 'full' });
+    const draft = await callGmailApi(() => gmail.users.drafts.get({ userId: 'me', id, format: 'full' }));
     const detail = toMessageDetail(draft.data.message ?? {});
 
     return sendPreviewFromDraft(id, {
@@ -117,7 +117,7 @@ export class DraftService {
 
   async createReplyDraft(threadId: string, payload: DraftPayload, dryRun = true): Promise<DraftResult> {
     const gmail = await this.composeClientFactory();
-    const thread = await gmail.users.threads.get({ userId: 'me', id: threadId, format: 'full' });
+    const thread = await callGmailApi(() => gmail.users.threads.get({ userId: 'me', id: threadId, format: 'full' }));
     const threadMessages = thread.data.messages ?? [];
     const targetMessage = payload.replyToMessageId
       ? threadMessages.find(
@@ -144,7 +144,7 @@ export class DraftService {
       return { dryRun: true, preview, threadId };
     }
 
-    const response = await gmail.users.drafts.create({
+    const response = await callGmailApi(() => gmail.users.drafts.create({
       userId: 'me',
       requestBody: {
         message: {
@@ -152,7 +152,7 @@ export class DraftService {
           raw: buildRawMimeMessage(preview)
         }
       }
-    });
+    }));
 
     return {
       draftId: response.data.id ?? undefined,

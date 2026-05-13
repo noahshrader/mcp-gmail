@@ -1,6 +1,6 @@
 import { gmail_v1 } from 'googleapis';
 
-import { getGmailClient, type GmailClientFactory } from './client.js';
+import { callGmailApi, getGmailClient, type GmailClientFactory } from './client.js';
 import { READONLY_SCOPES } from './scopes.js';
 import type { Label } from './types.js';
 
@@ -9,7 +9,7 @@ export class LabelService {
 
   async listLabels(): Promise<Label[]> {
     const gmail = await this.clientFactory();
-    const response = await gmail.users.labels.list({ userId: 'me' });
+    const response = await callGmailApi(() => gmail.users.labels.list({ userId: 'me' }));
 
     return (response.data.labels ?? []).map((label: gmail_v1.Schema$Label) => ({
       id: label.id ?? '',

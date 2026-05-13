@@ -1,4 +1,4 @@
-import { getGmailClient, type GmailClientFactory } from './client.js';
+import { callGmailApi, getGmailClient, type GmailClientFactory } from './client.js';
 import { GmailInvalidInputError } from './errors.js';
 import { MODIFY_SCOPES } from './scopes.js';
 import type { Label, StateResult } from './types.js';
@@ -10,7 +10,7 @@ export class StateService {
     private readonly clientFactory: GmailClientFactory = () => getGmailClient(MODIFY_SCOPES),
     private readonly labelLoader: () => Promise<Label[]> = async () => {
       const gmail = await this.clientFactory();
-      const response = await gmail.users.labels.list({ userId: 'me' });
+      const response = await callGmailApi(() => gmail.users.labels.list({ userId: 'me' }));
       return (response.data.labels ?? []).map((label) => ({
         id: label.id ?? '',
         name: label.name ?? '',
@@ -22,11 +22,11 @@ export class StateService {
   async archiveMessage(id: string, dryRun = true): Promise<StateResult> {
     if (!dryRun) {
       const gmail = await this.clientFactory();
-      await gmail.users.messages.modify({
+      await callGmailApi(() => gmail.users.messages.modify({
         userId: 'me',
         id,
         requestBody: { removeLabelIds: ['INBOX'] }
-      });
+      }));
     }
 
     return { id, action: 'archive', dryRun };
@@ -35,7 +35,7 @@ export class StateService {
   async trashMessage(id: string, dryRun = true): Promise<StateResult> {
     if (!dryRun) {
       const gmail = await this.clientFactory();
-      await gmail.users.messages.trash({ userId: 'me', id });
+      await callGmailApi(() => gmail.users.messages.trash({ userId: 'me', id }));
     }
 
     return { id, action: 'trash', dryRun };
@@ -44,11 +44,11 @@ export class StateService {
   async markRead(id: string, dryRun = true): Promise<StateResult> {
     if (!dryRun) {
       const gmail = await this.clientFactory();
-      await gmail.users.messages.modify({
+      await callGmailApi(() => gmail.users.messages.modify({
         userId: 'me',
         id,
         requestBody: { removeLabelIds: ['UNREAD'] }
-      });
+      }));
     }
 
     return { id, action: 'mark_read', dryRun };
@@ -57,11 +57,11 @@ export class StateService {
   async markUnread(id: string, dryRun = true): Promise<StateResult> {
     if (!dryRun) {
       const gmail = await this.clientFactory();
-      await gmail.users.messages.modify({
+      await callGmailApi(() => gmail.users.messages.modify({
         userId: 'me',
         id,
         requestBody: { addLabelIds: ['UNREAD'] }
-      });
+      }));
     }
 
     return { id, action: 'mark_unread', dryRun };
@@ -72,11 +72,11 @@ export class StateService {
 
     if (!dryRun) {
       const gmail = await this.clientFactory();
-      await gmail.users.messages.modify({
+      await callGmailApi(() => gmail.users.messages.modify({
         userId: 'me',
         id,
         requestBody: { addLabelIds: labelIds }
-      });
+      }));
     }
 
     return { id, action: 'apply_labels', dryRun, labelIds };
@@ -95,11 +95,11 @@ export class StateService {
 
     if (!dryRun) {
       const gmail = await this.clientFactory();
-      await gmail.users.messages.modify({
+      await callGmailApi(() => gmail.users.messages.modify({
         userId: 'me',
         id,
         requestBody: { removeLabelIds: labelIds }
-      });
+      }));
     }
 
     return { id, action: 'remove_labels', dryRun, labelIds };

@@ -1,4 +1,4 @@
-import { getGmailClient, type GmailClientFactory } from './client.js';
+import { callGmailApi, getGmailClient, type GmailClientFactory } from './client.js';
 import { GmailInvalidInputError } from './errors.js';
 import { READONLY_SCOPES } from './scopes.js';
 import {
@@ -23,25 +23,25 @@ export class MessageService {
 
     const maxResults = Math.min(options.maxResults ?? 20, 100);
     const gmail = await this.clientFactory();
-    const response = await gmail.users.messages.list({
+    const response = await callGmailApi(() => gmail.users.messages.list({
       userId: 'me',
       q: normalizedQuery,
       maxResults,
       pageToken: options.pageToken,
       labelIds: options.labelIds,
       includeSpamTrash: options.includeSpamTrash
-    });
+    }));
 
     const messages = response.data.messages ?? [];
 
     const detailedMessages = await Promise.all(
       messages.map(async (message) => {
-        const detail = await gmail.users.messages.get({
+        const detail = await callGmailApi(() => gmail.users.messages.get({
           userId: 'me',
           id: message.id ?? '',
           format: 'metadata',
           metadataHeaders: ['Subject', 'From', 'To', 'Cc', 'Bcc', 'Date']
-        });
+        }));
 
         return toMessageSummary(detail.data);
       })
@@ -52,11 +52,11 @@ export class MessageService {
 
   async getMessage(id: string, includeBody = true): Promise<MessageDetail> {
     const gmail = await this.clientFactory();
-    const response = await gmail.users.messages.get({
+    const response = await callGmailApi(() => gmail.users.messages.get({
       userId: 'me',
       id,
       format: 'full'
-    });
+    }));
 
     return toMessageDetail(response.data, includeBody);
   }
