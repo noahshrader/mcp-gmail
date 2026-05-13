@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { DraftService } from '../drafts.js';
 import { createGmailClientStub, createMessage } from './test-helpers.js';
 
@@ -162,5 +164,127 @@ describe('DraftService', () => {
     expect(result.preview.to).toEqual(['first@example.com']);
     expect(result.preview.subject).toBe('Re: First update');
     expect(result.preview.replyToMessageId).toBe('<message-id-1>');
+  });
+
+  it('creates and updates drafts when dryRun is false', async () => {
+    const create = vi.fn().mockResolvedValue({
+      data: { id: 'draft-2', message: { threadId: 'thread-2' } },
+    });
+    const update = vi.fn().mockResolvedValue({
+      data: { id: 'draft-2', message: { threadId: 'thread-2' } },
+    });
+    const get = vi.fn().mockResolvedValue({
+      data: {
+        id: 'draft-2',
+        message: createMessage({
+          threadId: 'thread-2',
+          payload: {
+            headers: [
+              { name: 'Subject', value: 'Existing subject' },
+              { name: 'To', value: 'person@example.com' },
+              { name: 'Cc', value: 'cc@example.com' },
+            ],
+            parts: [
+              {
+                mimeType: 'text/plain',
+                body: {
+                  data: Buffer.from('Existing body').toString('base64url'),
+                },
+              },
+            ],
+          },
+        }),
+      },
+    });
+    const composeClient = createGmailClientStub({
+      users: {
+        drafts: {
+          create,
+          get,
+          update,
+        },
+      } as never,
+    });
+    const service = new DraftService(async () => composeClient, async () => createGmailClientStub({}));
+
+    await expect(
+      service.createDraft({ to: ['person@example.com'], subject: 'Hello', body: 'Draft body' }, false)
+    ).resolves.toMatchObject({ draftId: 'draft-2', dryRun: false, threadId: 'thread-2' });
+
+    await expect(service.updateDraft('draft-2', { body: 'Updated body' }, false)).resolves.toMatchObject({
+      draftId: 'draft-2',
+      dryRun: false,
+      threadId: 'thread-2',
+      preview: {
+        to: ['person@example.com'],
+        cc: ['cc@example.com'],
+        bcc: [],
+        subject: 'Existing subject',
+        body: 'Updated body',
+      },
+    });
+
+    expect(create).toHaveBeenCalledOnce();
+    expect(update).toHaveBeenCalledOnce();
+  });
+
+  it('creates a reply draft when dryRun is false', async () => {
+    const create = vi.fn().mockResolvedValue({ data: { id: 'draft-3' } });
+    const composeClient = createGmailClientStub({
+      users: {
+        drafts: {
+          create,
+        },
+        threads: {
+          get: async () => ({
+            data: {
+              id: 'thread-1',
+              messages: [
+                createMessage({
+                  payload: {
+                    headers: [
+                      { name: 'Subject', value: 'Project update' },
+                      { name: 'From', value: 'sender@example.com' },
+                      { name: 'Message-Id', value: '<message-id-1>' },
+                    ],
+                    parts: [
+                      {
+                        mimeType: 'text/plain',
+                        body: {
+                          data: Buffer.from('Body').toString('base64url'),
+                        },
+                      },
+                    ],
+                  },
+                }),
+              ],
+            },
+          }),
+        },
+      } as never,
+    });
+    const service = new DraftService(async () => composeClient, async () => createGmailClientStub({}));
+
+    await expect(service.createReplyDraft('thread-1', { body: 'Reply body' }, false)).resolves.toMatchObject({
+      draftId: 'draft-3',
+      dryRun: false,
+      threadId: 'thread-1',
+    });
+    expect(create).toHaveBeenCalledOnce();
+  });
+
+  it('fails when a reply target cannot be resolved', async () => {
+    const composeClient = createGmailClientStub({
+      users: {
+        threads: {
+          get: async () => ({ data: { id: 'thread-1', messages: [] } }),
+        },
+      } as never,
+    });
+    const service = new DraftService(async () => composeClient, async () => createGmailClientStub({}));
+
+    await expect(service.createReplyDraft('thread-1', { body: 'Reply body' }, true)).rejects.toThrow(
+      'Thread thread-1 does not contain any messages'
+    );
   });
 });

@@ -21,8 +21,7 @@ export function registerReadMessageTool(server: McpServer, deps: ServerDependenc
       runTool(
         async () => ({
           message: await deps.messageService().getMessage(id, includeBody),
-        }),
-        'gmail/read_message_failed'
+        })
       )
   );
 }

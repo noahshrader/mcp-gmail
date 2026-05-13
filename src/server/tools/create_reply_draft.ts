@@ -34,8 +34,7 @@ export function registerCreateReplyDraftTool(server: McpServer, deps: ServerDepe
         async () =>
           deps
             .draftService()
-            .createReplyDraft(threadId, { body, replyToMessageId, to, subject, cc, bcc }, dryRun),
-        'gmail/create_reply_draft_failed'
+            .createReplyDraft(threadId, { body, replyToMessageId, to, subject, cc, bcc }, dryRun)
       )
   );
 }

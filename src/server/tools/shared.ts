@@ -1,6 +1,6 @@
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
-export type ToolErrorPayload = Record<'error' | 'code', string>;
+import { normalizeGmailError } from '../../gmail/errors.js';
 
 function toStructuredContent(payload: object): Record<string, unknown> {
   return payload as unknown as Record<string, unknown>;
@@ -14,22 +14,19 @@ export function createToolResult<T extends object>(payload: T, isError = false):
   };
 }
 
-function createToolError(error: unknown, code = 'gmail/internal_error'): CallToolResult {
-  const payload: ToolErrorPayload = {
-    error: error instanceof Error ? error.message : String(error),
-    code,
-  };
+function createToolError(error: unknown): CallToolResult {
+  if (error instanceof Error) {
+    const { message, code } = normalizeGmailError(error);
+    return createToolResult({ error: message, code }, true);
+  }
 
-  return createToolResult(payload, true);
+  return createToolResult({ error: String(error), code: 'gmail/internal_error' }, true);
 }
 
-export async function runTool(
-  handler: () => Promise<object>,
-  errorCode?: string
-): Promise<CallToolResult> {
+export async function runTool(handler: () => Promise<object>): Promise<CallToolResult> {
   try {
     return createToolResult(await handler());
   } catch (error) {
-    return createToolError(error, errorCode);
+    return createToolError(error);
   }
 }

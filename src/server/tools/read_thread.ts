@@ -17,6 +17,6 @@ export function registerReadThreadTool(server: McpServer, deps: ServerDependenci
       inputSchema: readThreadInputSchema,
     },
     async ({ id }) =>
-      runTool(async () => ({ thread: await deps.threadService().getThread(id) }), 'gmail/read_thread_failed')
+      runTool(async () => ({ thread: await deps.threadService().getThread(id) }))
   );
 }

@@ -31,8 +31,7 @@ export function registerUpdateDraftTool(server: McpServer, deps: ServerDependenc
     async ({ id, to, subject, body, cc, bcc, dryRun }) =>
       runTool(
         async () =>
-          deps.draftService().updateDraft(id, { to, subject, body, cc, bcc }, dryRun),
-        'gmail/update_draft_failed'
+          deps.draftService().updateDraft(id, { to, subject, body, cc, bcc }, dryRun)
       )
   );
 }

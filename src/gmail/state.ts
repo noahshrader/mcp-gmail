@@ -1,4 +1,5 @@
 import { getGmailClient, type GmailClientFactory } from './client.js';
+import { GmailInvalidInputError } from './errors.js';
 import { MODIFY_SCOPES } from './scopes.js';
 import type { Label, StateResult } from './types.js';
 
@@ -85,7 +86,9 @@ export class StateService {
     const forbidden = labelIds.filter((labelId) => RESERVED_LABELS.has(labelId));
 
     if (forbidden.length > 0) {
-      throw new Error(`Refusing to remove reserved system labels: ${forbidden.join(', ')}`);
+      throw new GmailInvalidInputError(
+        `Refusing to remove reserved system labels: ${forbidden.join(', ')}`
+      );
     }
 
     await this.assertLabelsExist(labelIds);
@@ -107,7 +110,7 @@ export class StateService {
     const missingLabels = labelIds.filter((labelId) => !existingLabels.has(labelId));
 
     if (missingLabels.length > 0) {
-      throw new Error(`Unknown label IDs: ${missingLabels.join(', ')}`);
+      throw new GmailInvalidInputError(`Unknown label IDs: ${missingLabels.join(', ')}`);
     }
   }
 }

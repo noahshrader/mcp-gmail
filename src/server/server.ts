@@ -2,7 +2,6 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 
 import { createServerDependencies } from './dependencies.js';
-import { registerSkillResources } from './resources/skills.js';
 import { registerApplyLabelsTool } from './tools/apply_labels.js';
 import { registerArchiveTool } from './tools/archive.js';
 import { registerCreateDraftTool } from './tools/create_draft.js';
@@ -42,7 +41,6 @@ export function createServer(overrides: ServerDependencyOverrides = {}): McpServ
   registerApplyLabelsTool(server, deps);
   registerRemoveLabelsTool(server, deps);
   registerTrashTool(server, deps);
-  registerSkillResources(server);
 
   return server;
 }

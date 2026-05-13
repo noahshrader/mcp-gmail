@@ -27,8 +27,7 @@ export function registerTrashTool(server: McpServer, deps: ServerDependencies): 
             action: result.action,
             dryRun: result.dryRun,
           };
-        },
-        'gmail/trash_failed'
+        }
       )
   );
 }

@@ -27,8 +27,7 @@ export function registerArchiveTool(server: McpServer, deps: ServerDependencies)
             action: result.action,
             dryRun: result.dryRun,
           };
-        },
-        'gmail/archive_failed'
+        }
       )
   );
 }

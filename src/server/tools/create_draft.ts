@@ -30,8 +30,7 @@ export function registerCreateDraftTool(server: McpServer, deps: ServerDependenc
     async ({ to, subject, body, cc, bcc, dryRun }) =>
       runTool(
         async () =>
-          deps.draftService().createDraft({ to, subject, body, cc, bcc }, dryRun),
-        'gmail/create_draft_failed'
+          deps.draftService().createDraft({ to, subject, body, cc, bcc }, dryRun)
       )
   );
 }

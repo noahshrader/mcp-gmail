@@ -18,6 +18,6 @@ export function registerSendDraftTool(server: McpServer, deps: ServerDependencie
       inputSchema: sendDraftInputSchema,
     },
     async ({ id, dryRun }) =>
-      runTool(async () => deps.draftService().sendDraft(id, dryRun), 'gmail/send_draft_failed')
+      runTool(async () => deps.draftService().sendDraft(id, dryRun))
   );
 }

@@ -10,6 +10,6 @@ export function registerListLabelsTool(server: McpServer, deps: ServerDependenci
       description: 'Return all Gmail labels for the authenticated account',
     },
     async () =>
-      runTool(async () => ({ labels: await deps.labelService().listLabels() }), 'gmail/list_labels_failed')
+      runTool(async () => ({ labels: await deps.labelService().listLabels() }))
   );
 }

@@ -28,8 +28,7 @@ export function registerApplyLabelsTool(server: McpServer, deps: ServerDependenc
             appliedLabelIds: result.labelIds ?? [],
             dryRun: result.dryRun,
           };
-        },
-        'gmail/apply_labels_failed'
+        }
       )
   );
 }

@@ -22,8 +22,7 @@ export function registerSearchTool(server: McpServer, deps: ServerDependencies):
       runTool(
         async () => ({
           messages: await deps.messageService().searchMessages(query, { maxResults, pageToken }),
-        }),
-        'gmail/search_failed'
+        })
       )
   );
 }

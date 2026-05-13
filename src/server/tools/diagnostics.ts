@@ -22,6 +22,6 @@ export function registerDiagnosticsTool(server: McpServer, deps: ServerDependenc
           scopes: status.scopes,
           adapterVersion: deps.adapterVersion,
         };
-      }, 'gmail/diagnostics_failed')
+      })
   );
 }

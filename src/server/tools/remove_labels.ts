@@ -28,8 +28,7 @@ export function registerRemoveLabelsTool(server: McpServer, deps: ServerDependen
             removedLabelIds: result.labelIds ?? [],
             dryRun: result.dryRun,
           };
-        },
-        'gmail/remove_labels_failed'
+        }
       )
   );
 }

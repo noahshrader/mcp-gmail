@@ -27,8 +27,7 @@ export function registerMarkReadTool(server: McpServer, deps: ServerDependencies
             action: result.action,
             dryRun: result.dryRun,
           };
-        },
-        'gmail/mark_read_failed'
+        }
       )
   );
 }

@@ -8,7 +8,10 @@ import { spawn } from 'node:child_process';
 import { google } from 'googleapis';
 import type { Credentials, OAuth2Client } from 'google-auth-library';
 
+import { GmailAuthError, GmailConfigError, GmailTokenExpiredError } from './errors.js';
 import { READONLY_SCOPES } from './scopes.js';
+
+const REFRESH_WINDOW_MS = 5 * 60 * 1000;
 
 interface OAuthClientConfig {
   client_id: string;
@@ -69,7 +72,7 @@ async function loadCredentialsFile(): Promise<OAuthClientConfig> {
   const config = credentialsFile?.installed ?? credentialsFile?.web;
 
   if (!config) {
-    throw new Error(`Missing OAuth client configuration at ${credentialsPath}`);
+    throw new GmailConfigError(`Missing OAuth client configuration at ${credentialsPath}`);
   }
 
   return config;
@@ -149,7 +152,7 @@ async function waitForOAuthCode(
 
   if (!address || typeof address === 'string') {
     server.close();
-    throw new Error('Failed to start local OAuth callback server');
+    throw new GmailAuthError('Failed to start local OAuth callback server');
   }
 
   const redirectUri = `http://127.0.0.1:${address.port}/oauth2callback`;
@@ -192,6 +195,33 @@ function attachTokenRefreshListener(client: OAuth2Client, tokenPath: string): vo
   });
 }
 
+async function refreshAccessTokenIfNeeded(
+  client: OAuth2Client,
+  tokenPath: string
+): Promise<void> {
+  const expiryDate = client.credentials.expiry_date;
+
+  if (typeof expiryDate !== 'number' || expiryDate - Date.now() > REFRESH_WINDOW_MS) {
+    return;
+  }
+
+  try {
+    const response = await client.refreshAccessToken();
+
+    client.setCredentials({
+      ...client.credentials,
+      ...response.credentials,
+    });
+    await writeJsonFile(tokenPath, client.credentials);
+  } catch (error) {
+    throw new GmailTokenExpiredError(
+      'Gmail access token could not be refreshed. Re-run auth login.',
+      401,
+      { cause: error }
+    );
+  }
+}
+
 export async function authorize(scopes: string[] = READONLY_SCOPES): Promise<OAuth2Client> {
   const requiredScopes = normalizeScopes(scopes);
   const config = await loadCredentialsFile();
@@ -213,7 +243,9 @@ export async function authorize(scopes: string[] = READONLY_SCOPES): Promise<OAu
 }
 
 export async function getAuthClient(scopes: string[] = READONLY_SCOPES): Promise<OAuth2Client> {
-  return authorize(scopes);
+  const client = await authorize(scopes);
+  await refreshAccessTokenIfNeeded(client, getTokenPath());
+  return client;
 }
 
 export async function getAuthStatus(scopes: string[] = READONLY_SCOPES): Promise<AuthStatus> {

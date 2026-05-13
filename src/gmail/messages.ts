@@ -1,4 +1,5 @@
 import { getGmailClient, type GmailClientFactory } from './client.js';
+import { GmailInvalidInputError } from './errors.js';
 import { READONLY_SCOPES } from './scopes.js';
 import {
   toMessageDetail,
@@ -13,11 +14,11 @@ export class MessageService {
     const normalizedQuery = query.trim();
 
     if (!normalizedQuery) {
-      throw new Error('Search query cannot be empty');
+      throw new GmailInvalidInputError('Search query cannot be empty');
     }
 
     if (normalizedQuery.length > 500) {
-      throw new Error('Search query cannot exceed 500 characters');
+      throw new GmailInvalidInputError('Search query cannot exceed 500 characters');
     }
 
     const maxResults = Math.min(options.maxResults ?? 20, 100);

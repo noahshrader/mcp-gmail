@@ -27,8 +27,7 @@ export function registerMarkUnreadTool(server: McpServer, deps: ServerDependenci
             action: result.action,
             dryRun: result.dryRun,
           };
-        },
-        'gmail/mark_unread_failed'
+        }
       )
   );
 }

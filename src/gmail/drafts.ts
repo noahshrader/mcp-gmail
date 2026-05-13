@@ -1,4 +1,5 @@
 import { getGmailClient, type GmailClientFactory } from './client.js';
+import { GmailNotFoundError } from './errors.js';
 import { COMPOSE_SCOPES, SEND_SCOPES } from './scopes.js';
 import {
   buildRawMimeMessage,
@@ -125,7 +126,7 @@ export class DraftService {
       : threadMessages[threadMessages.length - 1];
 
     if (!targetMessage) {
-      throw new Error(`Thread ${threadId} does not contain any messages`);
+      throw new GmailNotFoundError(`Thread ${threadId} does not contain any messages`);
     }
 
     const lastMessageDetail = toMessageDetail(targetMessage);
