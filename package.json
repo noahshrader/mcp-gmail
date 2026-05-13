@@ -19,7 +19,6 @@
     "@modelcontextprotocol/sdk": "^1.13.3",
     "commander": "^14.0.0",
     "googleapis": "^157.0.0",
-    "@vitest/coverage-v8": "^3.2.4",
     "zod": "^4.0.0"
   },
   "devDependencies": {
