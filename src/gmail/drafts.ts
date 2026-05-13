@@ -117,13 +117,18 @@ export class DraftService {
   async createReplyDraft(threadId: string, payload: DraftPayload, dryRun = true): Promise<DraftResult> {
     const gmail = await this.composeClientFactory();
     const thread = await gmail.users.threads.get({ userId: 'me', id: threadId, format: 'full' });
-    const lastMessage = thread.data.messages?.[thread.data.messages.length - 1];
+    const threadMessages = thread.data.messages ?? [];
+    const targetMessage = payload.replyToMessageId
+      ? threadMessages.find(
+          (message) => extractMessageId(message.payload) === payload.replyToMessageId
+        )
+      : threadMessages[threadMessages.length - 1];
 
-    if (!lastMessage) {
+    if (!targetMessage) {
       throw new Error(`Thread ${threadId} does not contain any messages`);
     }
 
-    const lastMessageDetail = toMessageDetail(lastMessage);
+    const lastMessageDetail = toMessageDetail(targetMessage);
     const preview: DraftPreview = {
       to: payload.to ?? (lastMessageDetail.from ? [lastMessageDetail.from] : []),
       cc: payload.cc ?? [],
@@ -131,7 +136,7 @@ export class DraftService {
       subject: payload.subject ?? ensureReplySubject(lastMessageDetail.subject),
       body: payload.body,
       threadId,
-      replyToMessageId: extractMessageId(lastMessage.payload)
+      replyToMessageId: payload.replyToMessageId ?? extractMessageId(targetMessage.payload)
     };
 
     if (dryRun) {

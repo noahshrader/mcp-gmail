@@ -1,15 +1,17 @@
 import { pathToFileURL } from 'node:url';
 
-export const STARTUP_MESSAGE = 'mcp-gmail Phase 1 adapter workspace initialized';
+import { startServer } from './server/server.js';
 
-export function getStartupMessage(): string {
-  return STARTUP_MESSAGE;
-}
-
-export function main(): void {
-  process.stdout.write(`${getStartupMessage()}\n`);
+export async function main(): Promise<void> {
+  await startServer();
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main();
+  try {
+    await main();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    process.stderr.write(`${message}\n`);
+    process.exitCode = 1;
+  }
 }

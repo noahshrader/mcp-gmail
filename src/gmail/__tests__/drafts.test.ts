@@ -102,4 +102,65 @@ describe('DraftService', () => {
     expect(result.preview.subject).toBe('Re: Project update');
     expect(result.preview.replyToMessageId).toBe('<message-id-1>');
   });
+
+  it('uses an explicit reply target when replyToMessageId is provided', async () => {
+    const composeClient = createGmailClientStub({
+      users: {
+        threads: {
+          get: async () => ({
+            data: {
+              id: 'thread-1',
+              messages: [
+                createMessage({
+                  payload: {
+                    headers: [
+                      { name: 'Subject', value: 'First update' },
+                      { name: 'From', value: 'first@example.com' },
+                      { name: 'Message-Id', value: '<message-id-1>' }
+                    ],
+                    parts: [
+                      {
+                        mimeType: 'text/plain',
+                        body: {
+                          data: Buffer.from('First body').toString('base64url')
+                        }
+                      }
+                    ]
+                  }
+                }),
+                createMessage({
+                  payload: {
+                    headers: [
+                      { name: 'Subject', value: 'Second update' },
+                      { name: 'From', value: 'second@example.com' },
+                      { name: 'Message-Id', value: '<message-id-2>' }
+                    ],
+                    parts: [
+                      {
+                        mimeType: 'text/plain',
+                        body: {
+                          data: Buffer.from('Second body').toString('base64url')
+                        }
+                      }
+                    ]
+                  }
+                })
+              ]
+            }
+          })
+        }
+      } as never
+    });
+    const service = new DraftService(async () => composeClient, async () => createGmailClientStub({}));
+
+    const result = await service.createReplyDraft(
+      'thread-1',
+      { body: 'Reply body', replyToMessageId: '<message-id-1>' },
+      true
+    );
+
+    expect(result.preview.to).toEqual(['first@example.com']);
+    expect(result.preview.subject).toBe('Re: First update');
+    expect(result.preview.replyToMessageId).toBe('<message-id-1>');
+  });
 });

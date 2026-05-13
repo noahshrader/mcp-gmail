@@ -2,10 +2,10 @@ import { rm } from 'node:fs/promises';
 
 import { Command } from 'commander';
 
-import { COMPOSE_SCOPES, READONLY_SCOPES, SEND_SCOPES } from '../../gmail/scopes.js';
+import { COMPOSE_SCOPES, MODIFY_SCOPES, READONLY_SCOPES, SEND_SCOPES } from '../../gmail/scopes.js';
 import type { CliDependencies } from '../types.js';
 
-const CLI_AUTH_SCOPES = [...READONLY_SCOPES, ...COMPOSE_SCOPES, ...SEND_SCOPES];
+const CLI_AUTH_SCOPES = [...READONLY_SCOPES, ...COMPOSE_SCOPES, ...SEND_SCOPES, ...MODIFY_SCOPES];
 const GOOGLE_REVOKE_URL = 'https://myaccount.google.com/permissions';
 
 export function registerAuthCommands(command: Command, deps: CliDependencies): void {

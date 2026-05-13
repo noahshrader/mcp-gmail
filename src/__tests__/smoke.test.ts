@@ -1,7 +1,10 @@
-import { getStartupMessage } from '../index.js';
+import { createServer } from '../server/server.js';
 
 describe('workspace smoke test', () => {
-  it('exposes the startup message', () => {
-    expect(getStartupMessage()).toContain('mcp-gmail');
+  it('creates the MCP server', () => {
+    const server = createServer({ adapterVersion: 'test-version' });
+
+    expect(server).toBeDefined();
+    expect(server.server).toBeDefined();
   });
 });

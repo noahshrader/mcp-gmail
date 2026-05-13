@@ -59,6 +59,7 @@ export interface DraftPayload {
   body: string;
   cc?: string[];
   bcc?: string[];
+  replyToMessageId?: string;
 }
 
 export interface DraftPreview {
