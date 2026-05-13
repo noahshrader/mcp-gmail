@@ -31,7 +31,7 @@ The adapter is the only code that talks to Google. It has no knowledge of MCP or
 
 | Module | Responsibility |
 |---|---|
-| `auth.ts` | OAuth 2.0 flow, token persistence, proactive refresh (5-min window) |
+| `auth.ts` | OAUTH 2.0 flow, token persistence, proactive refresh (5-min window) |
 | `client.ts` | Builds an authenticated `gmail_v1.Gmail` instance wrapped in a Proxy that applies retry and rate limiting to every API call transparently |
 | `scopes.ts` | Scope constants grouped by permission level |
 | `errors.ts` | Typed error hierarchy (`GmailError` subclasses) and `normalizeGmailError()` which maps raw API errors to stable `GmailErrorCode` strings |
@@ -94,7 +94,7 @@ interface ServerDependencies {
 }
 ```
 
-Tests override any factory with a mock — no real OAuth or HTTP calls needed.
+Tests override any factory with a mock — no real OAUTH or HTTP calls needed.
 
 ## Layer 3 — CLI (`src/cli/`)
 
@@ -102,7 +102,7 @@ Tests override any factory with a mock — no real OAuth or HTTP calls needed.
 |---|---|
 | `index.ts` | `commander` root command, registers sub-commands |
 | `types.ts` | `CliDependencies` (stdout, stderr, factories — overridable in tests) |
-| `commands/auth.ts` | `auth login` / `auth status` / `auth logout` — manages the OAuth flow |
+| `commands/auth.ts` | `auth login` / `auth status` / `auth logout` — manages the OAUTH flow |
 | `commands/read.ts` | `read search` / `read message` / `read thread` |
 | `commands/draft.ts` | `draft create` / `draft update` / `draft send` / `draft reply` |
 | `commands/labels.ts` | `labels list` / `labels apply` / `labels remove` |

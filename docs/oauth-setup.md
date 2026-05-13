@@ -1,51 +1,98 @@
-# OAuth and MCP Setup
+# OAUTH and MCP Setup
 
 ## Prerequisites
 
 - Node.js 20 or newer
-- A Google Cloud OAuth client for a desktop application
-- Gmail API enabled in the same Google Cloud project
 
-The adapter uses these default paths:
+That's it. The steps below will walk you through creating the Google Cloud credentials from scratch.
 
-- Credentials: `~/.gmail-mcp/credentials.json`
-- Token: `~/.gmail-mcp/token.json`
+---
 
-You can override them with:
+## Step 1 — Create a Google Cloud project
 
-- `GMAIL_MCP_CREDENTIALS_PATH`
-- `GMAIL_MCP_TOKEN_PATH`
+1. Go to [console.cloud.google.com](https://console.cloud.google.com).
+2. Click the project selector at the top of the page → **New Project**.
+3. Give it a name (e.g. `mcp-gmail`) and click **Create**.
+4. Make sure the new project is selected in the top bar before continuing.
 
-## Build
+---
+
+## Step 2 — Enable the Gmail API
+
+1. In the left sidebar go to **APIs & Services → Library**.
+2. Search for **Gmail API** and click it.
+3. Click **Enable**.
+
+---
+
+## Step 3 — Configure the OAuth consent screen
+
+This is required before creating credentials.
+
+1. Go to **APIs & Services → OAuth consent screen**.
+2. Choose **External** (for a personal account) or **Internal** (for a Google Workspace account) → **Create**.
+3. Fill in the required fields:
+   - **App name**: anything you like (e.g. `mcp-gmail`)
+   - **User support email**: your email address
+   - **Developer contact email**: your email address
+4. Click **Save and Continue** through the Scopes and Test Users screens — no changes needed there.
+5. Click **Back to Dashboard**.
+
+> If your app is in **Testing** mode, only email addresses you add as test users can authorize it. Add your own address under **Test Users** if needed.
+
+---
+
+## Step 4 — Create OAuth credentials
+
+1. Go to **APIs & Services → Credentials**.
+2. Click **+ Create Credentials → OAuth client ID**.
+3. For **Application type** choose **Desktop app**.
+4. Give it a name (e.g. `mcp-gmail-desktop`) → **Create**.
+5. A dialog will show your client ID and secret. Click **Download JSON**.
+6. Save the downloaded file — it is named something like `client_secret_....json`.
+
+---
+
+## Step 5 — Place the credentials file
+
+```bash
+mkdir -p ~/.gmail-mcp
+mv ~/Downloads/client_secret_*.json ~/.gmail-mcp/credentials.json
+chmod 600 ~/.gmail-mcp/credentials.json
+```
+
+The adapter looks for credentials at `~/.gmail-mcp/credentials.json` by default. You can change this with the `GMAIL_MCP_CREDENTIALS_PATH` environment variable.
+
+---
+
+## Step 6 — Build and run the first login
 
 ```bash
 npm install
 npm run build
-```
-
-## First Login
-
-```bash
 npm run cli auth login
 ```
 
 The adapter will:
 
-1. Read the OAuth client JSON.
+1. Read the OAUTH client JSON.
 2. Start a local callback server on `127.0.0.1` with a random free port.
-3. Print and open the consent URL in the default browser.
-4. Exchange the callback code for tokens.
-5. Save the token locally.
+3. Print and open the consent URL in your default browser.
+4. Wait for you to approve access in the browser.
+5. Exchange the callback code for tokens and save them to `~/.gmail-mcp/token.json`.
 
-The requested production scope set is:
+The scopes requested during login are:
 
-- `https://www.googleapis.com/auth/gmail.readonly`
-- `https://www.googleapis.com/auth/gmail.send`
-- `https://www.googleapis.com/auth/gmail.modify`
+- `https://www.googleapis.com/auth/gmail.readonly` — read messages, labels, threads
+- `https://www.googleapis.com/auth/gmail.compose` — create and manage drafts
+- `https://www.googleapis.com/auth/gmail.send` — send drafts
+- `https://www.googleapis.com/auth/gmail.modify` — archive, trash, mark read/unread, labels
 
-The CLI login flow also requests `gmail.compose` so draft operations stay explicit during development.
+See [PERMISSIONS.md](PERMISSIONS.md) for a full breakdown of which tools use each scope.
 
-## Verify the Token
+---
+
+## Step 7 — Verify the token
 
 ```bash
 npm run cli auth status
@@ -53,39 +100,37 @@ npm run cli labels list
 npm run cli messages search "in:inbox" --max-results 5
 ```
 
+---
+
 ## Run the MCP Server
 
 ```bash
 npm run mcp
 ```
 
-That starts the stdio server from `dist/index.js`.
+Starts the stdio server from `dist/index.js`. Your MCP client connects to this process. See the client guides in this folder for client-specific configuration.
 
 ## Safe First MCP Checks
 
-Call these in order from any MCP client:
+Call these in order from any MCP client after connecting:
 
-1. `gmail_diagnostics`
-2. `gmail_list_labels`
+1. `gmail_diagnostics` — confirms auth status, granted scopes, and adapter version
+2. `gmail_list_labels` — lists all labels
 3. `gmail_search` with `{ "query": "in:inbox", "maxResults": 3 }`
-4. `gmail_create_draft` without `dryRun: false`
+4. `gmail_create_draft` without `dryRun: false` — previews a draft without creating it
 
 All write tools default to `dryRun: true`.
 
-## Troubleshooting
-
-- `Missing OAuth client configuration`: the credentials file path is wrong or the JSON is malformed.
-- `Gmail authorization is missing or expired`: run `npm run cli auth login` again.
-- `Gmail access token could not be refreshed`: the refresh token is stale or revoked; delete the local token and re-auth.
-- Browser does not open automatically: copy the printed URL into a browser manually.
-- `403` on state-changing tools: re-run the login flow so the token includes `gmail.modify`.
-
-- `gmail_diagnostics` returns auth status, granted scopes, and adapter version
-- Read tools return structured JSON
-- Write tools default to `dryRun: true`
+---
 
 ## Troubleshooting
 
-- If OAuth fails, confirm the credential file path and that the OAuth client is configured for a desktop app.
-- If the server exits immediately, rebuild with `npm run build` and launch `npm run mcp` directly to inspect stderr.
-- If Gmail tools report unauthenticated status, rerun `npm run cli auth login` to refresh local consent.
+| Symptom | Fix |
+|---|---|
+| `Missing OAUTH client configuration` | Credentials file path is wrong or the JSON is malformed. Confirm the file exists at `~/.gmail-mcp/credentials.json` (or your custom path) and is the JSON downloaded from Google Cloud. |
+| `Gmail authorization is missing or expired` | Run `npm run cli auth login` again. |
+| `Gmail access token could not be refreshed` | The refresh token is stale or was revoked. Delete `~/.gmail-mcp/token.json` and re-run `auth login`. |
+| Browser does not open automatically | Copy the printed URL from the terminal and paste it into a browser manually. |
+| `403` on write tools | The token is missing `gmail.modify`. Delete `~/.gmail-mcp/token.json` and re-run `auth login` to get a fresh token with the full scope set. |
+| Server exits immediately | Rebuild with `npm run build` and run `npm run mcp` directly to see stderr output. |
+| App shows "This app isn't verified" in the consent screen | This is expected for a personal-use Desktop app in Testing mode. Click **Advanced → Go to [app name] (unsafe)** to proceed. |

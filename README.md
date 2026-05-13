@@ -10,7 +10,7 @@ npm run build
 npm run cli auth login
 ```
 
-After the OAuth flow completes, verify the adapter locally:
+After the OAUTH flow completes, verify the adapter locally:
 
 ```bash
 npm run cli labels list
@@ -18,14 +18,14 @@ npm run cli messages search "in:inbox" --max-results 5
 npm run mcp
 ```
 
-## OAuth Setup
+## OAUTH Setup
 
-1. Create a Google Cloud OAuth client for a desktop application.
+1. Create a Google Cloud OAUTH client for a desktop application.
 2. Save the downloaded JSON at `~/.gmail-mcp/credentials.json`.
 3. Run `npm run cli auth login`.
 4. The adapter opens a browser, listens on a local `127.0.0.1` callback URL, and stores the token at `~/.gmail-mcp/token.json`.
 
-Detailed setup and troubleshooting: [docs/oauth-setup.md](docs/oauth-setup.md)
+Detailed setup and troubleshooting: [docs/OAUTH-SETUP.md](docs/OAUTH-SETUP.md)
 
 ## Tool Surface
 
@@ -51,8 +51,8 @@ Detailed setup and troubleshooting: [docs/oauth-setup.md](docs/oauth-setup.md)
 
 | Environment variable | Default | Purpose |
 |---|---|---|
-| `GMAIL_MCP_CREDENTIALS_PATH` | `~/.gmail-mcp/credentials.json` | OAuth client JSON downloaded from Google Cloud |
-| `GMAIL_MCP_TOKEN_PATH` | `~/.gmail-mcp/token.json` | Saved OAuth access and refresh token |
+| `GMAIL_MCP_CREDENTIALS_PATH` | `~/.gmail-mcp/credentials.json` | OAUTH client JSON downloaded from Google Cloud |
+| `GMAIL_MCP_TOKEN_PATH` | `~/.gmail-mcp/token.json` | Saved OAUTH access and refresh token |
 
 ## Validation
 
@@ -67,7 +67,7 @@ Current coverage baseline is above 80% overall and above 90% in `src/gmail/`.
 
 ## Client Guides
 
-- [docs/claude-desktop.md](docs/claude-desktop.md)
-- [docs/claude-code.md](docs/claude-code.md)
-- [docs/github-copilot.md](docs/github-copilot.md)
-- [docs/cursor.md](docs/cursor.md)
+- [docs/CLAUDE-DESKTOP.md](docs/CLAUDE-DESKTOP.md)
+- [docs/CLAUDE-CODE.md](docs/CLAUDE-CODE.md)
+- [docs/GITHUB-COPILOT.md](docs/GITHUB-COPILOT.md)
+- [docs/CURSOR.md](docs/CURSOR.md)

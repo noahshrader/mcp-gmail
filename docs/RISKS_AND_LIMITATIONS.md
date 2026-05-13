@@ -24,11 +24,11 @@ Gmail drafts can be deleted or restored. Sent email cannot be unsent. Once `gmai
 
 ### Credentials file
 
-`~/.gmail-mcp/credentials.json` contains your OAuth client ID and secret. This file is created by you from the Google Cloud Console and is never transmitted anywhere. Protect it like any private key: readable only by your user account, not checked into version control.
+`~/.gmail-mcp/credentials.json` contains your OAUTH client ID and secret. This file is created by you from the Google Cloud Console and is never transmitted anywhere. Protect it like any private key: readable only by your user account, not checked into version control.
 
 ### Token file
 
-`~/.gmail-mcp/token.json` is the cached OAuth token. It grants Gmail access without requiring your Google password. If this file is compromised, an attacker can access your Gmail account until the token expires or you revoke access at [myaccount.google.com/permissions](https://myaccount.google.com/permissions).
+`~/.gmail-mcp/token.json` is the cached OAUTH token. It grants Gmail access without requiring your Google password. If this file is compromised, an attacker can access your Gmail account until the token expires or you revoke access at [myaccount.google.com/permissions](https://myaccount.google.com/permissions).
 
 **Recommended permissions**: `chmod 600 ~/.gmail-mcp/token.json ~/.gmail-mcp/credentials.json`
 

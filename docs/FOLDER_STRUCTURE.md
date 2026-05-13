@@ -6,9 +6,9 @@ mcp-gmail/
 │   ├── index.ts                    Entry point — starts the MCP server (stdio)
 │   │
 │   ├── gmail/                      Gmail adapter layer (no MCP or CLI knowledge)
-│   │   ├── auth.ts                 OAuth 2.0 flow, token read/write, proactive refresh
+│   │   ├── auth.ts                 OAUTH 2.0 flow, token read/write, proactive refresh
 │   │   ├── client.ts               Authenticated Gmail API client + Proxy middleware
-│   │   ├── scopes.ts               OAuth scope constants grouped by permission level
+│   │   ├── scopes.ts               OAUTH scope constants grouped by permission level
 │   │   ├── errors.ts               Typed error classes + normalizeGmailError()
 │   │   ├── retry.ts                withRetry() — exponential backoff with jitter
 │   │   ├── rateLimit.ts            Token-bucket limiter (200 units/sec)
@@ -58,13 +58,13 @@ mcp-gmail/
 │   ├── SYSTEM_OVERVIEW.md          What this is and how it works
 │   ├── ARCHITECTURE.md             Layer design, data flow, dependency injection
 │   ├── FOLDER_STRUCTURE.md         This file
-│   ├── permissions.md              OAuth scopes and which tools require each scope
+│   ├── PERMISSIONS.md              OAUTH scopes and which tools require each scope
 │   ├── RISKS_AND_LIMITATIONS.md    Known constraints and safety considerations
-│   ├── oauth-setup.md              Step-by-step Google Cloud Console setup
-│   ├── claude-desktop.md           Claude Desktop client configuration
-│   ├── claude-code.md              Claude Code client configuration
-│   ├── cursor.md                   Cursor client configuration
-│   └── github-copilot.md           VS Code GitHub Copilot client configuration
+│   ├── OAUTH-SETUP.md              Step-by-step Google Cloud Console setup
+│   ├── CLAUDE-DESKTOP.md           Claude Desktop client configuration
+│   ├── CLAUDE-CODE.md              Claude Code client configuration
+│   ├── CURSOR.md                   Cursor client configuration
+│   └── GITHUB-COPILOT.md           VS Code GitHub Copilot client configuration
 │
 ├── dist/                           Compiled JavaScript output (git-ignored)
 ├── coverage/                       Test coverage reports (git-ignored)

@@ -1,6 +1,6 @@
 # System Overview
 
-mcp-gmail is a [Model Context Protocol](https://modelcontextprotocol.io) server that gives AI agents structured, safe access to a Gmail account. It bridges any MCP-compatible client (Claude Desktop, Cursor, VS Code Copilot, Claude Code) to the Gmail API using standard OAuth 2.0 credentials — no third-party service, no API key sharing, all traffic goes directly between your machine and Google.
+mcp-gmail is a [Model Context Protocol](https://modelcontextprotocol.io) server that gives AI agents structured, safe access to a Gmail account. It bridges any MCP-compatible client (Claude Desktop, Cursor, VS Code Copilot, Claude Code) to the Gmail API using standard OAUTH 2.0 credentials — no third-party service, no API key sharing, all traffic goes directly between your machine and Google.
 
 ## What it does
 
@@ -31,7 +31,7 @@ No persistent background process is needed. The server starts on demand and exit
 
 ## Authentication model
 
-Credentials are stored at `~/.gmail-mcp/credentials.json` (the OAuth client JSON from Google Cloud Console). After the first `auth login` flow, an access token is cached at `~/.gmail-mcp/token.json` and automatically refreshed when it nears expiry. No credentials are transmitted outside your machine except to Google's OAuth and Gmail endpoints.
+Credentials are stored at `~/.gmail-mcp/credentials.json` (the OAUTH client JSON from Google Cloud Console). After the first `auth login` flow, an access token is cached at `~/.gmail-mcp/token.json` and automatically refreshed when it nears expiry. No credentials are transmitted outside your machine except to Google's OAUTH and Gmail endpoints.
 
 ## Key design decisions
 

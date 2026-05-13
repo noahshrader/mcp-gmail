@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Build completed with `npm run build`
-- OAuth login completed with `npm run cli auth login`
+- OAUTH login completed with `npm run cli auth login`
 
 ## Configure Claude Desktop
 

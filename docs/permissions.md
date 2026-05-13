@@ -1,4 +1,4 @@
-# OAuth Permissions
+# OAUTH Permissions
 
 mcp-gmail requests the minimum Gmail scopes required for the tools you use. This page explains what each scope allows, which tools depend on it, and what it cannot do.
 
@@ -85,7 +85,7 @@ The granted scopes are encoded in the cached access token at `~/.gmail-mcp/token
 
 ## Revoking access
 
-To revoke all access: visit [myaccount.google.com/permissions](https://myaccount.google.com/permissions), find the OAuth app, and remove it. Then run `auth logout` locally to delete the cached token.
+To revoke all access: visit [myaccount.google.com/permissions](https://myaccount.google.com/permissions), find the OAUTH app, and remove it. Then run `auth logout` locally to delete the cached token.
 
 ## Scope narrowing
 

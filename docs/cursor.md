@@ -28,5 +28,5 @@ If Cursor stores MCP servers in JSON on your setup, use the same command, args, 
 ## Troubleshooting
 
 - If Cursor fails to launch the server, confirm the built file exists and Node.js is on the PATH used by Cursor.
-- If the OAuth browser flow did not complete in the same user session, run the CLI auth step in a terminal first.
+- If the OAUTH browser flow did not complete in the same user session, run the CLI auth step in a terminal first.
 - If token refresh fails, delete the local token and authenticate again.
